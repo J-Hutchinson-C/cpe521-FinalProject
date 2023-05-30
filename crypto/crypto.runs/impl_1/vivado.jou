@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2022.2 (64-bit)
+# SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
+# IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
+# Start of session at: Tue May 30 12:34:55 2023
+# Process ID: 14880
+# Current directory: C:/Users/18056/OneDrive/Documents/Spring2023/CPE521/final_project/cpe521-FinalProject/crypto/crypto.runs/impl_1
+# Command line: vivado.exe -log OTTER_Wrapper_Programmable.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source OTTER_Wrapper_Programmable.tcl -notrace
+# Log file: C:/Users/18056/OneDrive/Documents/Spring2023/CPE521/final_project/cpe521-FinalProject/crypto/crypto.runs/impl_1/OTTER_Wrapper_Programmable.vdi
+# Journal file: C:/Users/18056/OneDrive/Documents/Spring2023/CPE521/final_project/cpe521-FinalProject/crypto/crypto.runs/impl_1\vivado.jou
+# Running On: LAPTOP-FR92BU44, OS: Windows, CPU Frequency: 2995 MHz, CPU Physical cores: 4, Host memory: 16868 MB
+#-----------------------------------------------------------
+source OTTER_Wrapper_Programmable.tcl -notrace

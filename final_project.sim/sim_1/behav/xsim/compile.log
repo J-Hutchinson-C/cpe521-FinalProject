@@ -1,0 +1,36 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/ArithLogicUnit.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_ALU
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/BCD.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module BCD
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/CU_Decoder.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_CU_Decoder
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/CathodeDriver.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module CathodeDriver
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/Mult4to1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Mult6to1
+INFO: [VRFC 10-311] analyzing module Mult4to1
+INFO: [VRFC 10-311] analyzing module Mult2to1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/OTTER_Wrapper.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_Wrapper_Programmable
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/ProgCount.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ProgCount
+WARNING: [VRFC 10-8426] non-net output port 'PC_COUNT' cannot be initialized at declaration in SystemVerilog mode [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/ProgCount.sv:28]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/SevSegDisp.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module SevSegDisp
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/bram_dualport_pipeline.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_mem_dualport
+INFO: [VRFC 10-311] analyzing module OTTER_mem_byte
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/debounce_one_shot.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module debounce_one_shot
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_MCU
+INFO: [VRFC 10-2458] undeclared symbol ld_use_hazard, assumed default net type wire [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv:187]
+INFO: [VRFC 10-2458] undeclared symbol mem_Wenable, assumed default net type wire [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv:273]
+INFO: [VRFC 10-2458] undeclared symbol mem_Renable, assumed default net type wire [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv:274]
+INFO: [VRFC 10-2458] undeclared symbol csr_reg, assumed default net type wire [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv:295]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/registerFile.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module OTTER_registerFile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/Marko/521_BP/final_project.srcs/sim_1/imports/sim/clock_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clock_tb
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/Marko/521_BP/final_project.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl

@@ -1,0 +1,21 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  \
+"../../../../final_project.srcs/sources_1/imports/source/ArithLogicUnit.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/BCD.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/CU_Decoder.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/CathodeDriver.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/Mult4to1.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/OTTER_Wrapper.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/ProgCount.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/SevSegDisp.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/bram_dualport_pipeline.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/debounce_one_shot.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv" \
+"../../../../final_project.srcs/sources_1/imports/source/registerFile.sv" \
+"../../../../final_project.srcs/sim_1/imports/sim/clock_tb.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

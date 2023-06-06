@@ -1,0 +1,29 @@
+Vivado Simulator 2020.2
+Copyright 1986-1999, 2001-2020 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2020.2/bin/unwrapped/win64.o/xelab.exe -wto 3c2cd1beb0dd49338d2ed37565099e8b --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot clock_tb_behav xil_defaultlib.clock_tb xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-5021] port 'BTNL' is not connected on this instance [C:/Users/Marko/521_BP/final_project.srcs/sim_1/imports/sim/clock_tb.sv:34]
+WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 32 for port 'In2' [C:/Users/Marko/521_BP/final_project.srcs/sources_1/imports/source/otter_mcu_pipeline_template_v2.sv:295]
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package xil_defaultlib.$unit_ArithLogicUnit_sv
+Compiling module xil_defaultlib.ProgCount
+Compiling module xil_defaultlib.Mult4to1
+Compiling module xil_defaultlib.OTTER_CU_Decoder
+Compiling module xil_defaultlib.Mult2to1
+Compiling module xil_defaultlib.OTTER_registerFile
+Compiling module xil_defaultlib.OTTER_ALU
+Compiling module xil_defaultlib.OTTER_mem_byte
+Compiling module xil_defaultlib.OTTER_MCU
+Compiling module xil_defaultlib.BCD
+Compiling module xil_defaultlib.CathodeDriver
+Compiling module xil_defaultlib.SevSegDisp
+Compiling module xil_defaultlib.debounce_one_shot
+Compiling module xil_defaultlib.OTTER_Wrapper_Programmable
+Compiling module xil_defaultlib.clock_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot clock_tb_behav

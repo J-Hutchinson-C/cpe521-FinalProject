@@ -2,6 +2,8 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     input btb_clk,
     input btb_reset,
     input btb_write, // allow data to be written
+    input btb_branch_taken, // Tells if branch was taken so write can be updated
+
     input [31:0] btb_pc, // program counter in fetch
     input [31:0] btb_new_pc, // program counter in decode/execute stage to be added
     input [31:0] btb_data, // memory
@@ -24,8 +26,18 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     logic [9:0] btb_index_read; // Get index which is first 10 bits of pc
     logic [9:0] btb_index_write; // Get index which is first 10 bits of pc
 
+    // Variable for the output of the FSM
+    logic [1:0] btb_fsm_predictor;
+
     // Declare BTB memory
     btb_entry_t btb[btb_number_entries];
+    
+    /////////////////////////////////////////////////////////
+    // Initializing the BTB FSM
+    // Need to check, prob some issues caused by the fact that input and output exist for the same variable
+    branch_target_buffer_FSM BTB_FSM(.btb_fsm_clk(btb_clk), .btb_fsm_branch_taken(btb_branch_taken), .btb_fsm_current_prediction(btb[btb_index_write].predictor), .btb_fsm_new_prediction(btb_fsm_predictor));
+    /////////////////////////////////////////////////////////
+
 
     //Initialize the BTB
     initial begin
@@ -52,9 +64,12 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
         if ((btb[btb_index_read].valid) && (btb[btb_index_read].tag == btb_pc[31:10])) begin
             // Read Hit: Use the stored target address from BTB
             btb_target <= btb[btb_index_read].data;
+
         end
         else begin
-            
+            //Read Miss: Output the next PC value so pc = pc+4
+            btb_target <= 0; // CHANGE THIS LATER just for testing
+
         end
 
         // Decode/Execute Stage
@@ -67,12 +82,13 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
                 btb[btb_index_write].predictor <= 1; // Initially set to "Not Taken Weak"
                 btb[btb_index_write].valid <= 1'b1;
             end
+
             // if branch is just updating the branch
             else if (btb[btb_index_write].tag == btb_new_pc[31:10]) begin
-                // if branch 
-
-
+                // update the predictor from the FSM module output
+                btb[btb_index_write].predictor <= btb_fsm_predictor;
             end
+
             // if branch is replacing a spot that contains an already existing branch
             else begin
                 btb[btb_index_write].tag <= btb_new_pc[31:10];
@@ -81,12 +97,5 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
                 btb[btb_index_write].valid <= 1'b1;
             end
         end
-
     end
-    
-
-    //Function to Write to the BTB
-
-
-
 endmodule

@@ -81,10 +81,6 @@ module branch_target_buffer_FSM (
                     //BTB_FSM_NS = STATE_TAKEN_WEAK;
                 end
             end
-
         endcase
-        
-    
     end
-
 endmodule

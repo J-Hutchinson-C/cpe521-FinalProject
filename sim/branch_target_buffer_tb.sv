@@ -1,6 +1,6 @@
 module branch_target_buffer_tb();
 
-    logic btb_clk;
+    logic btb_clk = 1'b0;
     logic btb_reset;
     logic btb_write; // allow data to be written
     logic btb_branch_taken; // Tells if branch was taken so write can be updated
@@ -15,16 +15,84 @@ module branch_target_buffer_tb();
 
 
     // Clock generation
-    always #5 CLK = ~CLK;
+    always #5 btb_clk = ~btb_clk;
 
     // Test Stimulus
     initial begin
+        //Test writing to the btb
+        // Test 1: Adding to new spots
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        btb_data = 32'hDEADBEEF; // Hex value to be stored in data section
+        #20;
+        btb_branch_taken = 1'b0; // Branch was taken this first time
+        btb_new_pc = 32'h00000000; //PC where branch occurs
+        btb_data = 32'hFEEDBEEF; // Hex value to be stored in data section
+        
+        #50;
+
+        // Test 2: Changing the predictors at the spots
+        // Should just change the predictor to 2
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b0; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 0
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b0; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 0 still
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b0; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 1
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 3
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 3 still
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 2
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b0; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        // Should just change the predictor to 3
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00000004; //PC where branch occurs
+        //btb_data = 32'h00000000; // Hex value to be stored in data section
+        #10;
+        btb_write = 1'b0; // Turn writing off
+
+        // Test 3: Replacing a spot with another branch that shares the same index
+
+
+        // Test 4: Make sure btb_write being off doesn't allow any writing
 
         
     end
 
 
     // Initialization of DUT
-    branch_target_buffer BTB(.btb_clk(btb_clk), .btb_reset(), .btb_write(), .btb_branch_taken(), .btb_pc(), .btb_new_pc(), .btb_data(), .btb_valid_prediction(), .btb_target());
+    branch_target_buffer BTB(.btb_clk(btb_clk), .btb_reset(btb_reset), .btb_write(btb_write), .btb_branch_taken(btb_branch_taken), .btb_pc(btb_pc), .btb_new_pc(btb_new_pc), .btb_data(btb_data), .btb_valid_prediction(btb_valid_prediction), .btb_target(btb_target));
 
 endmodule

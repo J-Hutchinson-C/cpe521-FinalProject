@@ -67,12 +67,12 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
         if ((btb[btb_index_read].valid) && (btb[btb_index_read].tag == btb_pc[31:10])) begin
             // Read Hit: Use the stored target address from BTB
             btb_target <= btb[btb_index_read].data;
-            
+
 
         end
         else begin
             //Read Miss: Output the next PC value so pc = pc+4
-            btb_target <= 0; // CHANGE THIS LATER just for testing
+            btb_target <= btb_pc + 4; // No branch so go to next
 
         end
 
@@ -105,6 +105,14 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
                 btb[btb_index_write].tag <= btb_new_pc[31:10];
                 btb[btb_index_write].data <= btb_data;
                 btb[btb_index_write].predictor <= 1; // Initially set to "Not Taken Weak"
+                // If branch was taken the set to taken strong
+                if (btb_branch_taken) begin
+                    btb[btb_index_write].predictor <= 3; // Initially set to "Taken Strong"
+                end
+                // else branch was was not taken so set to not taken strong
+                else begin
+                    btb[btb_index_write].predictor <= 0; // Initially set to "Not Taken Strong"
+                end
                 btb[btb_index_write].valid <= 1'b1;
             end
         end

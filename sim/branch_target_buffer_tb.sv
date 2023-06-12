@@ -80,14 +80,24 @@ module branch_target_buffer_tb();
         btb_branch_taken = 1'b1; // Branch was taken this first time
         btb_new_pc = 32'h00000004; //PC where branch occurs
         //btb_data = 32'h00000000; // Hex value to be stored in data section
-        #10;
-        btb_write = 1'b0; // Turn writing off
+        #50;
 
         // Test 3: Replacing a spot with another branch that shares the same index
+        // Replace 004 in the index
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b1; // Branch was taken this first time
+        btb_new_pc = 32'h00001004; //PC where branch occurs
+        btb_data = 32'hDEADFEED; // Hex value to be stored in data section
+        #20;
 
+        // Replace 000 in the index
+        btb_write = 1'b1; // Enable writing
+        btb_branch_taken = 1'b0; // Branch was not taken this first time
+        btb_new_pc = 32'h00001000; //PC where branch occurs
+        btb_data = 32'hDEADFEED; // Hex value to be stored in data section
+        #20;
 
-        // Test 4: Make sure btb_write being off doesn't allow any writing
-
+        btb_write = 1'b0; // Turn writing off
         
     end
 

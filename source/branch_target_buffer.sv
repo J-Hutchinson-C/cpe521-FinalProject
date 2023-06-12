@@ -8,7 +8,6 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     input [31:0] btb_new_pc, // program counter in decode/execute stage to be added
     input [31:0] btb_data, // memory
 
-
     output btb_valid_prediction,
     output logic [31:0] btb_target // PC branch will jump to
 
@@ -36,9 +35,12 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     /////////////////////////////////////////////////////////
     // Initializing the BTB FSM
     // Need to check, prob some issues caused by the fact that input and output exist for the same variable
-    branch_target_buffer_FSM BTB_FSM(.btb_fsm_clk(btb_clk), .btb_fsm_branch_taken(btb_branch_taken), .btb_fsm_current_prediction(btb[btb_index_write].predictor), .btb_fsm_new_prediction(btb_fsm_predictor));
+    branch_target_buffer_FSM BTB_FSM(
+        .btb_fsm_clk(btb_clk), 
+        .btb_fsm_branch_taken(btb_branch_taken), 
+        .btb_fsm_current_prediction(btb[btb_index_write].predictor), 
+        .btb_fsm_new_prediction(btb_fsm_predictor));
     /////////////////////////////////////////////////////////
-
 
     //Initialize the BTB
     initial begin

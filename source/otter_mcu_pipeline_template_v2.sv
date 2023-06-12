@@ -77,28 +77,29 @@ module OTTER_MCU(input CLK,
     logic br_lt,br_eq, br_ltu;
     logic wb_enable;
               
-     logic stall_pc;
-     logic stall_if;
-     logic stall_de;
-     //The following stages are not stalled in our first piplined otter  (no interrupts, exceptions, memory delays)
-     logic stall_ex=0;
-     logic stall_mem=0;
-     logic stall_wb=0;
-     
-     logic if_de_invalid=0;
-     logic de_ex_invalid=0;
-     logic ex_mem_invalid=0;
-     logic mem_wb_invalid=0;
-     
-     initial     
-        $monitor("IF: %4h, DE: %4h (%s)\t EX: %4h (%s)\t MEM: %4h (%s)\t WB: %4h (%0s)", pc,de_inst.pc,de_inst.opcode.name(),de_ex_inst.pc,de_ex_inst.opcode.name(),ex_mem_inst.pc,ex_mem_inst.opcode.name(),mem_wb_inst.pc,mem_wb_inst.opcode.name());         
+    logic stall_pc;
+    logic stall_if;
+    logic stall_de;
+
+    //The following stages are not stalled in our first piplined otter  (no interrupts, exceptions, memory delays)
+    logic stall_ex=0;
+    logic stall_mem=0;
+    logic stall_wb=0;
+    
+    logic if_de_invalid=0;
+    logic de_ex_invalid=0;
+    logic ex_mem_invalid=0;
+    logic mem_wb_invalid=0;
+    
+    initial     
+    $monitor("IF: %4h, DE: %4h (%s)\t EX: %4h (%s)\t MEM: %4h (%s)\t WB: %4h (%0s)", pc,de_inst.pc,de_inst.opcode.name(),de_ex_inst.pc,de_ex_inst.opcode.name(),ex_mem_inst.pc,ex_mem_inst.opcode.name(),mem_wb_inst.pc,mem_wb_inst.opcode.name());         
      
 //==== Instruction Fetch ===========================================
-     logic [31:0] if_de_pc;
+    logic [31:0] if_de_pc;
      
-     always_ff @(posedge CLK)
-            if(!stall_if)
-                if_de_pc <= pc;
+    always_ff @(posedge CLK)
+        if(!stall_if)
+            if_de_pc <= pc;
      
      assign pcWrite = !stall_pc;
      assign memRead1 = !stall_if;
@@ -171,15 +172,15 @@ module OTTER_MCU(input CLK,
     assign J_immed = {{12{IR[31]}}, IR[19:12], IR[20],IR[30:21],1'b0};
 
     always_ff @(posedge CLK) begin
-            if(!stall_de) begin           
-                de_ex_inst <= de_inst;
-                de_ex_opA <=aluAin;
-                de_ex_opB <=aluBin;
-                de_ex_rs2 <= B;
-                de_ex_I_immed <= I_immed;
-                de_ex_J_immed <= J_immed;
-                de_ex_B_immed <= B_immed;
-            end
+        if(!stall_de) begin           
+            de_ex_inst <= de_inst;
+            de_ex_opA <=aluAin;
+            de_ex_opB <=aluBin;
+            de_ex_rs2 <= B;
+            de_ex_I_immed <= I_immed;
+            de_ex_J_immed <= J_immed;
+            de_ex_B_immed <= B_immed;
+        end
      end    
       
     //===== HAZARD DETECTION =================================
@@ -232,24 +233,24 @@ module OTTER_MCU(input CLK,
     
     logic brn_cond;
     always_comb
-            case(de_ex_inst.func3)
-                3'b000: brn_cond = br_eq;     //BEQ 
-                3'b001: brn_cond = ~br_eq;    //BNE
-                3'b100: brn_cond = br_lt;     //BLT
-                3'b101: brn_cond = ~br_lt;    //BGE
-                3'b110: brn_cond = br_ltu;    //BLTU
-                3'b111: brn_cond = ~br_ltu;   //BGEU
-                default: brn_cond =0;
-            endcase
+        case(de_ex_inst.func3)
+            3'b000: brn_cond = br_eq;     //BEQ 
+            3'b001: brn_cond = ~br_eq;    //BNE
+            3'b100: brn_cond = br_lt;     //BLT
+            3'b101: brn_cond = ~br_lt;    //BGE
+            3'b110: brn_cond = br_ltu;    //BLTU
+            3'b111: brn_cond = ~br_ltu;   //BGEU
+            default: brn_cond =0;
+        endcase
     always_comb begin
-                if(!de_ex_invalid) begin
-                case(de_ex_inst.opcode)
-                    JAL: pc_sel =2'b11;
-                    JALR: pc_sel =2'b01;
-                    BRANCH: pc_sel=(brn_cond)?2'b10:2'b00;
-                    default: pc_sel=2'b00; 
-                endcase 
-                end else pc_sel=2'b00;
+        if(!de_ex_invalid) begin
+            case(de_ex_inst.opcode)
+                JAL: pc_sel =2'b11;
+                JALR: pc_sel =2'b01;
+                BRANCH: pc_sel=(brn_cond)?2'b10:2'b00;
+                default: pc_sel=2'b00; 
+            endcase 
+        end else pc_sel=2'b00;
         end
         
     assign jalr_pc = de_ex_I_immed + opA_forwarded;
@@ -257,11 +258,11 @@ module OTTER_MCU(input CLK,
     assign jump_pc = de_ex_J_immed + de_ex_inst.pc;  
      
       always_ff @(posedge CLK) begin
-            if(!stall_ex) begin
-                ex_mem_aluRes <=aluResult;
-                ex_mem_inst <= de_ex_inst;
-                ex_mem_rs2 <= rs2_forwarded;
-            end
+        if(!stall_ex) begin
+            ex_mem_aluRes <=aluResult;
+            ex_mem_inst <= de_ex_inst;
+            ex_mem_rs2 <= rs2_forwarded;
+        end
      end   
      
 //==== Memory ======================================================
@@ -281,10 +282,10 @@ module OTTER_MCU(input CLK,
     assign IOBUS_OUT = ex_mem_rs2;
     
     always_ff @(posedge CLK) begin
-            if(!stall_mem) begin
-                mem_wb_inst <= ex_mem_inst;
-                mem_wb_aluRes <= ex_mem_aluRes;
-            end
+        if(!stall_mem) begin
+            mem_wb_inst <= ex_mem_inst;
+            mem_wb_aluRes <= ex_mem_aluRes;
+        end
      end        
      
 //==== Write Back ==================================================
@@ -297,8 +298,8 @@ module OTTER_MCU(input CLK,
        
  //==== Forwarding Logic ===========================================
      
-     logic valid_forward_from_mem;
-     logic valid_forward_from_wb;
+    logic valid_forward_from_mem;
+    logic valid_forward_from_wb;
      
     always_comb begin
         valid_forward_from_mem = ex_mem_inst.regWrite && !ex_mem_invalid;

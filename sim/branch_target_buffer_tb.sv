@@ -98,6 +98,24 @@ module branch_target_buffer_tb();
         #20;
 
         btb_write = 1'b0; // Turn writing off
+
+        #50; // Wait 50ns before moving onto reading tests
+
+
+        // Test Reading from the BTB
+        // Test 1: Read from the btb to see what target is stored
+        btb_pc = 32'h00001004;
+        #20
+        btb_pc = 32'h00001000;
+        #20;
+
+        // Test 2: Read from the btb that is empty or has the incorrect value at the index
+        btb_pc = 32'h00000004;
+        #20
+        btb_pc = 32'h00000000;
+        #20;
+
+
         
     end
 

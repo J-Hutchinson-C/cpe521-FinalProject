@@ -49,17 +49,10 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
         end
     end
 
-    always_ff @(posedge btb_clk) begin
+    //Asynch read
+    always_comb begin
         btb_index_read <= btb_pc[9:0]; // Get index which is first 10 bits of pc
         btb_index_write <= btb_new_pc[9:0]; // Get index which is first 10 bits of pc
-
-
-        if (btb_reset) begin
-            // Reset the BTB entries
-            for (int i = 0; i < btb_number_entries; i++) begin
-            btb[i].valid <= 0;
-            end
-        end
 
         // Fetch Stage
         // Read from btb
@@ -74,6 +67,17 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
             //Read Miss: Output the next PC value so pc = pc+4
             btb_target <= btb_pc + 4; // No branch so go to next
 
+        end
+    end
+
+    //Synch write
+    always_ff @(posedge btb_clk) begin
+
+        if (btb_reset) begin
+            // Reset the BTB entries
+            for (int i = 0; i < btb_number_entries; i++) begin
+            btb[i].valid <= 0;
+            end
         end
 
         // Decode/Execute Stage

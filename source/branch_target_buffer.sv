@@ -14,6 +14,7 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
 
     );
 
+    // BTB
     typedef struct {
         logic [21:0] tag; // 32bit pc - 10bit index = 22bit tag
         logic [31:0] data; // The branch address
@@ -23,8 +24,8 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     
     
     // Index variables used for the BTB
-    logic [9:0] btb_index_read; // Get index which is first 10 bits of pc
-    logic [9:0] btb_index_write; // Get index which is first 10 bits of pc
+    logic [9:0] btb_index_read; // Get index which is first 10 bits of pc for fetch stage
+    logic [9:0] btb_index_write; // Get index which is first 10 bits of pc for decode/execute stage
 
     // Variable for the output of the FSM
     logic [1:0] btb_fsm_predictor;
@@ -60,10 +61,11 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
 
         // Fetch Stage
         // Read from btb
-        // Does the branch pc already exist in the chip
+        // Does the branch pc already exist in the btb
         if ((btb[btb_index_read].valid) && (btb[btb_index_read].tag == btb_pc[31:10])) begin
             // Read Hit: Use the stored target address from BTB
             btb_target <= btb[btb_index_read].data;
+            
 
         end
         else begin

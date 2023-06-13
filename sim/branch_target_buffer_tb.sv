@@ -30,7 +30,7 @@ module branch_target_buffer_tb();
         btb_new_pc = 32'h00000000; //PC where branch occurs
         btb_data = 32'hFEEDBEEF; // Hex value to be stored in data section
         
-        #50;
+        #30;
 
         // Test 2: Changing the predictors at the spots
         // Should just change the predictor to 2
@@ -80,7 +80,7 @@ module branch_target_buffer_tb();
         btb_branch_taken = 1'b1; // Branch was taken this first time
         btb_new_pc = 32'h00000004; //PC where branch occurs
         //btb_data = 32'h00000000; // Hex value to be stored in data section
-        #50;
+        #30;
 
         // Test 3: Replacing a spot with another branch that shares the same index
         // Replace 004 in the index
@@ -99,7 +99,7 @@ module branch_target_buffer_tb();
 
         btb_write = 1'b0; // Turn writing off
 
-        #50; // Wait 50ns before moving onto reading tests
+        #30; // Wait 50ns before moving onto reading tests
 
 
         // Test Reading from the BTB
@@ -119,5 +119,5 @@ module branch_target_buffer_tb();
 
     // Initialization of DUT
     branch_target_buffer BTB(.btb_clk(btb_clk), .btb_reset(btb_reset), .btb_write(btb_write), .btb_branch_taken(btb_branch_taken), .btb_pc(btb_pc), .btb_new_pc(btb_new_pc), .btb_data(btb_data), .btb_valid_prediction(btb_valid_prediction), .btb_target(btb_target));
-    
+
 endmodule

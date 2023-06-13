@@ -65,6 +65,7 @@ module OTTER_MCU(input CLK,
     wire [31:0] B_immed;
     wire [31:0] J_immed;
     
+    wire [31:0] IR_Dout1;
     wire [31:0] IR;
     wire memRead1,memRead2;
     
@@ -162,6 +163,9 @@ module OTTER_MCU(input CLK,
     
     Mult2to1 ALUAinput (A, U_immed, opA_sel, aluAin);
 
+    // 2to1 Mux for branch prediction choice
+    Mult2to1 BRANCH_MEMORY (.In1(IR_Dout1), .In2(/*btb target which should come from pipeline*/), .Sel(/*Valid Branch Prediction which comes from pipeline*/), .Out(IR));
+
     // Creates a RISC-V register file
     OTTER_registerFile RF (de_inst.rs1, de_inst.rs2, mem_wb_inst.rd, rfIn, wb_enable, A, B, CLK);
 
@@ -227,8 +231,6 @@ module OTTER_MCU(input CLK,
 
     // Creates a BTB for the 2-bit branch prediction
     branch_target_buffer BTB (.btb_clk(CLK), .btb_reset(), .btb_write(/*NEW VARIABLE REQUIRED HERE*/), .btb_branch_taken(/*NEW VARIABLE REQUIRED HERE*/), .btb_pc(pc), .btb_new_pc(de_ex_inst.pc), .btb_data(de_ex_ir), .btb_valid_prediction(/*NEW VARIABLE REQUIRED HERE*/), .btb_target(/*NEW VARIABLE REQUIRED HERE*/));
-    
-    // 2to1 Mux for branch prediction choice
     
     /*
     input btb_clk,
@@ -299,7 +301,7 @@ module OTTER_MCU(input CLK,
      
    OTTER_mem_byte #(14) memory  (.MEM_CLK(CLK),.MEM_ADDR1(pc),.MEM_ADDR2(ex_mem_aluRes),.MEM_DIN2(ex_mem_rs2),
                                .MEM_WRITE2(mem_Wenable),.MEM_READ1(memRead1),.MEM_READ2(mem_Renable),
-                               .ERR(),.MEM_DOUT1(IR),.MEM_DOUT2(mem_data),.IO_IN(IOBUS_IN),.IO_WR(IOBUS_WR),.MEM_SIZE(ex_mem_inst.func3[1:0]),.MEM_SIGN(ex_mem_inst.func3[2]));     
+                               .ERR(),.MEM_DOUT1(IR_Dout1),.MEM_DOUT2(mem_data),.IO_IN(IOBUS_IN),.IO_WR(IOBUS_WR),.MEM_SIZE(ex_mem_inst.func3[1:0]),.MEM_SIGN(ex_mem_inst.func3[2]));     
     
     assign IOBUS_ADDR = ex_mem_aluRes;
     assign IOBUS_OUT = ex_mem_rs2;

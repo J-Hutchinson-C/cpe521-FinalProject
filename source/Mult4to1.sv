@@ -71,7 +71,8 @@ module Mult2to1(In1, In2, Sel, Out);
     output logic [31:0] Out; //64-bit output
     always_comb
         case (Sel) //a 4->1 multiplexor
-            0: Out = In1;            
-            default: Out = In2; 
+            0: Out = In1;
+            1: Out = In2;            
+            default: Out = In1; 
         endcase
 endmodule

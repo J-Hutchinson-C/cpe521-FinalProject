@@ -60,13 +60,16 @@ module OTTER_MCU(input CLK,
     wire [6:0] opcode;
     wire [31:0] pc, pc_value, next_pc, jalr_pc, branch_pc, jump_pc, int_pc,A,B,
         I_immed,S_immed,U_immed,aluBin,aluAin,aluResult,rfIn;
+
+    wire [31:0] ex_fe_pc;
         
     wire [31:0] mem_data;
     wire [31:0] B_immed;
     wire [31:0] J_immed;
     
-    wire [31:0] IR_Dout1;
+    // memory signals
     wire [31:0] IR;
+    wire [31:0] IR_mem;
     wire memRead1,memRead2;
     
     wire pcWrite,regWrite,memWrite, op1_sel,mem_op,memRead;
@@ -97,16 +100,24 @@ module OTTER_MCU(input CLK,
      
 //==== Instruction Fetch ===========================================
     logic [31:0] if_de_pc;
-     
-    always_ff @(posedge CLK)
-        if(!stall_if)
+    logic if_de_predict;
+    wire [31:0] pc_plus_4; 
+
+    always_ff @(posedge CLK) begin
+        if (!branch_taken_AND_predicted)
+            if_de_pc <= 0;
+        else if(!stall_if)
             if_de_pc <= pc;
+        else
+            if_de_predict <= btb_prediction;
+    end
      
      assign pcWrite = !stall_pc;
      assign memRead1 = !stall_if;
      
     //pc target calculations 
-    assign next_pc = pc + 4;    //PC is byte aligned, memory is word aligned
+    assign pc_plus_4 = pc + 4;    //PC is byte aligned, memory is word aligned
+    Mult2to1 BP_not_pong (pc_plus_4, ex_fe_pc, branch_taken_AND_predicted, next_pc);
           
     assign opcode = IR[6:0]; // opcode shortcut
     //PC is byte-addressed but our memory is word addressed 
@@ -123,11 +134,14 @@ module OTTER_MCU(input CLK,
     logic [31:0] de_ex_I_immed;
     logic [31:0] de_ex_J_immed;
     logic [31:0] de_ex_B_immed;
+    logic de_ex_predict;
     
     instr_t de_ex_inst, de_inst;
     opcode_t OPCODE;
     assign OPCODE = opcode_t'(opcode);
     
+    // will need to put this into a comb block; 
+    // pipeline regs will based on instr. passed thru. 
     assign de_inst.rs1=IR[19:15];
     assign de_inst.rs2=IR[24:20];
     assign de_inst.rd=IR[11:7];
@@ -152,7 +166,7 @@ module OTTER_MCU(input CLK,
                         && de_inst.opcode != STORE;
     assign de_inst.memWrite = de_inst.opcode == STORE;
     assign de_inst.memRead2 = de_inst.opcode == LOAD;                          
-        
+    // end of the root cause diagnosis
     
     OTTER_CU_Decoder CU_DECODER(.CU_OPCODE(opcode), .CU_FUNC3(IR[14:12]),.CU_FUNC7(IR[31:25]), 
              .CU_BR_EQ(br_eq),.CU_BR_LT(br_lt),.CU_BR_LTU(br_ltu),//.CU_PCSOURCE(pc_sel),
@@ -162,9 +176,6 @@ module OTTER_MCU(input CLK,
     Mult4to1 ALUBinput (B, I_immed, S_immed, de_inst.pc, opB_sel, aluBin);
     
     Mult2to1 ALUAinput (A, U_immed, opA_sel, aluAin);
-
-    // 2to1 Mux for branch prediction choice
-    Mult2to1 BRANCH_MEMORY (.In1(IR_Dout1), .In2(/*btb target which should come from pipeline*/), .Sel(/*Valid Branch Prediction which comes from pipeline*/), .Out(IR));
 
     // Creates a RISC-V register file
     OTTER_registerFile RF (de_inst.rs1, de_inst.rs2, mem_wb_inst.rd, rfIn, wb_enable, A, B, CLK);
@@ -177,7 +188,17 @@ module OTTER_MCU(input CLK,
     assign J_immed = {{12{IR[31]}}, IR[19:12], IR[20],IR[30:21],1'b0};
 
     always_ff @(posedge CLK) begin
-        if(!stall_de) begin           
+        if (!branch_taken_AND_predicted) begin // flushing takes place here
+            de_ex_inst <= 0;
+            de_ex_opA <= 0;
+            de_ex_opB <= 0;
+            de_ex_rs2 <= 0;
+            de_ex_ir <= 0;
+            de_ex_I_immed <= 0;
+            de_ex_J_immed <= 0;
+            de_ex_B_immed <= 0;
+        end
+        else if(!stall_de) begin           
             de_ex_inst <= de_inst;
             de_ex_opA <=aluAin;
             de_ex_opB <=aluBin;
@@ -187,6 +208,8 @@ module OTTER_MCU(input CLK,
             de_ex_J_immed <= J_immed;
             de_ex_B_immed <= B_immed;
         end
+        else 
+            de_ex_predict <= if_de_predict;
      end    
       
     //===== HAZARD DETECTION =================================
@@ -219,19 +242,36 @@ module OTTER_MCU(input CLK,
     end
 
 //==== Execute ======================================================
-     logic [31:0] ex_mem_rs2;
-     logic [31:0] rs2_forwarded;
-     logic [31:0] ex_mem_aluRes = 0;
-     instr_t ex_mem_inst;
-     logic [31:0] opA_forwarded;
-     logic [31:0] opB_forwarded;
+    logic [31:0] ex_mem_rs2;
+    logic [31:0] rs2_forwarded;
+    logic [31:0] ex_mem_aluRes = 0;
+    instr_t ex_mem_inst;
+    logic [31:0] opA_forwarded;
+    logic [31:0] opB_forwarded;
+    logic branch_taken_vs_predicted; 
      
      // Creates a RISC-V ALU
     OTTER_ALU ALU (de_ex_inst.alu_fun, opA_forwarded, opB_forwarded, aluResult);
 
+    // BTB vars
+    logic [31:0] btb_target; // might not be needed 
+    wire [31:0] IR_btb;
+    wire btb_prediction;
+
     // Creates a BTB for the 2-bit branch prediction
-    branch_target_buffer BTB (.btb_clk(CLK), .btb_reset(), .btb_write(/*NEW VARIABLE REQUIRED HERE*/), .btb_branch_taken(/*NEW VARIABLE REQUIRED HERE*/), .btb_pc(pc), .btb_new_pc(de_ex_inst.pc), .btb_data(de_ex_ir), .btb_valid_prediction(/*NEW VARIABLE REQUIRED HERE*/), .btb_target(/*NEW VARIABLE REQUIRED HERE*/));
+    branch_target_buffer BTB (
+        .btb_clk(CLK), 
+        .btb_reset(1'b0), 
+        .btb_write(/*NEW VARIABLE REQUIRED HERE*/), 
+        .btb_branch_taken(/*NEW VARIABLE REQUIRED HERE*/), 
+        .btb_pc(pc), .btb_new_pc(de_ex_inst.pc), 
+        .btb_data(de_ex_ir), 
+        .btb_valid_prediction(btb_prediction), // takes cached result in BTB or result generated by FSM
+        .btb_target(IR_btb));
     
+    // 2to1 Mux for branch prediction choice
+    Mult2to1 BP_not_pong (IR_mem, IR_btb, btb_prediction, IR);
+
     /*
     input btb_clk,
     input btb_reset,
@@ -245,8 +285,6 @@ module OTTER_MCU(input CLK,
     output logic btb_valid_prediction,
     output logic [31:0] btb_target // PC branch will jump to
     */
-
-
      
     //Branch Condition Generator
     always_comb begin
@@ -275,20 +313,27 @@ module OTTER_MCU(input CLK,
                 BRANCH: pc_sel=(brn_cond)?2'b10:2'b00;
                 default: pc_sel=2'b00; 
             endcase 
-        end else pc_sel=2'b00;
-        end
-        
+        end 
+        else pc_sel=2'b00;
+    end
+    
+    // target gen - start      
     assign jalr_pc = de_ex_I_immed + opA_forwarded;
     assign branch_pc = de_ex_B_immed + de_ex_inst.pc;   //byte aligned addresses
     assign jump_pc = de_ex_J_immed + de_ex_inst.pc;  
+    // target gen - end 
+
+    assign branch_taken_AND_predicted = (brn_cond == de_ex_predict) 1'b1 ? 1'b0; 
+    assign ex_fe_pc = de_inst.pc;
      
-      always_ff @(posedge CLK) begin
+    // pipeline registers ???  
+    always_ff @(posedge CLK) begin
         if(!stall_ex) begin
             ex_mem_aluRes <=aluResult;
             ex_mem_inst <= de_ex_inst;
             ex_mem_rs2 <= rs2_forwarded;
         end
-     end
+    end
      
 //==== Memory ======================================================
      
@@ -301,7 +346,8 @@ module OTTER_MCU(input CLK,
      
    OTTER_mem_byte #(14) memory  (.MEM_CLK(CLK),.MEM_ADDR1(pc),.MEM_ADDR2(ex_mem_aluRes),.MEM_DIN2(ex_mem_rs2),
                                .MEM_WRITE2(mem_Wenable),.MEM_READ1(memRead1),.MEM_READ2(mem_Renable),
-                               .ERR(),.MEM_DOUT1(IR_Dout1),.MEM_DOUT2(mem_data),.IO_IN(IOBUS_IN),.IO_WR(IOBUS_WR),.MEM_SIZE(ex_mem_inst.func3[1:0]),.MEM_SIGN(ex_mem_inst.func3[2]));     
+                               .ERR(),.MEM_DOUT1(IR_mem),.MEM_DOUT2(mem_data),.IO_IN(IOBUS_IN),.IO_WR(IOBUS_WR), // originally - .MEM_DOUT1(IR)
+                               .MEM_SIZE(ex_mem_inst.func3[1:0]),.MEM_SIGN(ex_mem_inst.func3[2]));     
     
     assign IOBUS_ADDR = ex_mem_aluRes;
     assign IOBUS_OUT = ex_mem_rs2;

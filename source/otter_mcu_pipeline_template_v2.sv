@@ -118,6 +118,7 @@ module OTTER_MCU(input CLK,
     logic [31:0] de_ex_opA;
     logic [31:0] de_ex_opB;
     logic [31:0] de_ex_rs2;
+    logic [31:0] de_ex_ir; // Added for the branch since in the execute stage and not decode stage
     logic [31:0] de_ex_I_immed;
     logic [31:0] de_ex_J_immed;
     logic [31:0] de_ex_B_immed;
@@ -177,6 +178,7 @@ module OTTER_MCU(input CLK,
             de_ex_opA <=aluAin;
             de_ex_opB <=aluBin;
             de_ex_rs2 <= B;
+            de_ex_ir <= IR;
             de_ex_I_immed <= I_immed;
             de_ex_J_immed <= J_immed;
             de_ex_B_immed <= B_immed;
@@ -221,7 +223,28 @@ module OTTER_MCU(input CLK,
      logic [31:0] opB_forwarded;
      
      // Creates a RISC-V ALU
-    OTTER_ALU ALU (de_ex_inst.alu_fun, opA_forwarded, opB_forwarded, aluResult); 
+    OTTER_ALU ALU (de_ex_inst.alu_fun, opA_forwarded, opB_forwarded, aluResult);
+
+    // Creates a BTB for the 2-bit branch prediction
+    branch_target_buffer BTB (.btb_clk(CLK), .btb_reset(), .btb_write(/*NEW VARIABLE REQUIRED HERE*/), .btb_branch_taken(/*NEW VARIABLE REQUIRED HERE*/), .btb_pc(pc), .btb_new_pc(de_ex_inst.pc), .btb_data(de_ex_ir), .btb_valid_prediction(/*NEW VARIABLE REQUIRED HERE*/), .btb_target(/*NEW VARIABLE REQUIRED HERE*/));
+    
+    // 2to1 Mux for branch prediction choice
+    
+    /*
+    input btb_clk,
+    input btb_reset,
+    input btb_write, // allow data to be written
+    input btb_branch_taken, // Tells if branch was taken so write can be updated
+
+    input [31:0] btb_pc, // program counter in fetch
+    input [31:0] btb_new_pc, // program counter in decode/execute stage to be added
+    input [31:0] btb_data, // memory
+
+    output logic btb_valid_prediction,
+    output logic [31:0] btb_target // PC branch will jump to
+    */
+
+
      
     //Branch Condition Generator
     always_comb begin
@@ -263,7 +286,7 @@ module OTTER_MCU(input CLK,
             ex_mem_inst <= de_ex_inst;
             ex_mem_rs2 <= rs2_forwarded;
         end
-     end   
+     end
      
 //==== Memory ======================================================
      

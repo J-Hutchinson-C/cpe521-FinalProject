@@ -114,13 +114,10 @@ module branch_target_buffer_tb();
         #20
         btb_pc = 32'h00000000;
         #20;
-
-
-        
+ 
     end
-
 
     // Initialization of DUT
     branch_target_buffer BTB(.btb_clk(btb_clk), .btb_reset(btb_reset), .btb_write(btb_write), .btb_branch_taken(btb_branch_taken), .btb_pc(btb_pc), .btb_new_pc(btb_new_pc), .btb_data(btb_data), .btb_valid_prediction(btb_valid_prediction), .btb_target(btb_target));
-
+    
 endmodule

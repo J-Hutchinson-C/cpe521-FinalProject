@@ -8,9 +8,8 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
     input [31:0] btb_new_pc, // program counter in decode/execute stage to be added
     input [31:0] btb_data, // memory
 
-    output btb_valid_prediction,
+    output logic btb_valid_prediction,
     output logic [31:0] btb_target // PC branch will jump to
-
     );
 
     // BTB
@@ -59,14 +58,13 @@ module branch_target_buffer #(parameter btb_number_entries = 1024)(
         // Does the branch pc already exist in the btb
         if ((btb[btb_index_read].valid) && (btb[btb_index_read].tag == btb_pc[31:10])) begin
             // Read Hit: Use the stored target address from BTB
-            btb_target <= btb[btb_index_read].data;
-
-
+            btb_target = btb[btb_index_read].data;
+            btb_valid_prediction = 1'b1; // BTB is attempting to predict
         end
         else begin
             //Read Miss: Output the next PC value so pc = pc+4
             btb_target <= btb_pc + 4; // No branch so go to next
-
+            btb_valid_prediction = 1'b0; // BTB is not attempting to predict
         end
     end
 
